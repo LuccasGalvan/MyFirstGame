@@ -11,6 +11,11 @@ Berserker::Berserker() : PlayerCharacterDelegate() {
 void Berserker::level_char_up() noexcept {
     LEVELUP
         if (GetLevel() == 2) {
-            Abilities.emplace_back(new Ability("RageAttack", 6u, nullptr, 1u, 2u, ABILITYTARGET::ENEMY, ABILITYSCALER::STR, ABILITYCOSTTYPE::EP));
+            Abilities.emplace_back(new Ability("Que Raivaa''", 6u, nullptr, 2u, 2u, ABILITYTARGET::ENEMY, ABILITYSCALER::STR, ABILITYCOSTTYPE::EP));
+        } else if (GetLevel() == 3) {
+            Abilities.emplace_back(new Ability("Death Wish", 8u, nullptr, 4u, 4u, ABILITYTARGET::ENEMY, ABILITYSCALER::STR, ABILITYCOSTTYPE::HP));
+        }
+        else if (GetLevel() == 5) {
+            Abilities.emplace_back(new Ability("Enraged Attack", 8u, nullptr, 2u, 2u, ABILITYTARGET::ENEMY, ABILITYSCALER::STR, ABILITYCOSTTYPE::EP));
         }
 }

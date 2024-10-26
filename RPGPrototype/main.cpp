@@ -21,11 +21,13 @@ bool abilitySelection() {
 				std::cout << "> ";
 			else
 				std::cout << "  ";
-			std::cout << ability->GetName() << std::endl;
+			std::cout << ability->GetName() << " - Cost: " << ability->GetCost();
+			if(ability->RemainingCooldown != 0)
+				std::cout << " Remaining Cooldown: " << ability->RemainingCooldown << std::endl;
 
 			abilitiesInList++;
 		}
-		std::cout << "---------------------------";
+		std::cout << "\n---------------------------";
 
 		std::cin.ignore(100, '\n');
 		std::cout << "\nPress b to leave ability list\n";
@@ -54,27 +56,31 @@ bool abilitySelection() {
 				switch (currentAbilities[selectedAbility]->GetCostType()) {
 				case ABILITYCOSTTYPE::MP:
 					abilityCost = currentAbilities[selectedAbility]->GetCost();
-					if (abilityCost > MainCharacter->p1.GetCurrentMP())
+					if (abilityCost > MainCharacter->p1.GetCurrentMP() || currentAbilities[selectedAbility]->RemainingCooldown > 0)
 						return false;
 					MainCharacter->p1.ReduceMP(abilityCost);
+					currentAbilities[selectedAbility]->RemainingCooldown = currentAbilities[selectedAbility]->GetCooldown();
 					break;
 				case ABILITYCOSTTYPE::EP:
 					abilityCost = currentAbilities[selectedAbility]->GetCost();
-					if (abilityCost > MainCharacter->p1.GetCurrentEP())
+					if (abilityCost > MainCharacter->p1.GetCurrentEP() || currentAbilities[selectedAbility]->RemainingCooldown > 0)
 						return false;
 					MainCharacter->p1.ReduceEP(abilityCost);
+					currentAbilities[selectedAbility]->RemainingCooldown = currentAbilities[selectedAbility]->GetCooldown();
 					break;
 				case ABILITYCOSTTYPE::HP:
 					abilityCost = currentAbilities[selectedAbility]->GetCost();
-					if (abilityCost > MainCharacter->p1.GetCurrentHP())
+					if (abilityCost > MainCharacter->p1.GetCurrentHP() || currentAbilities[selectedAbility]->RemainingCooldown > 0)
 						return false;
 					MainCharacter->p1.TakeDamage(abilityCost);
+					currentAbilities[selectedAbility]->RemainingCooldown = currentAbilities[selectedAbility]->GetCooldown();
 					break;
 				case ABILITYCOSTTYPE::RP:
 					abilityCost = currentAbilities[selectedAbility]->GetCost();
-					if (abilityCost > MainCharacter->p1.GetCurrentRP())
+					if (abilityCost > MainCharacter->p1.GetCurrentRP() || currentAbilities[selectedAbility]->RemainingCooldown > 0)
 						return false;
 					MainCharacter->p1.ReduceRP(abilityCost);
+					currentAbilities[selectedAbility]->RemainingCooldown = currentAbilities[selectedAbility]->GetCooldown();
 					break;
 				}
 
@@ -822,6 +828,13 @@ void enterFightSequence(Player& player1){
 			}
 		}
 
+		//updating cooldowns
+		auto currentAbilities = MainCharacter->p1.GetAbilityList();
+		for (auto& ability : currentAbilities) {
+			if (ability->RemainingCooldown > 0)
+				ability->RemainingCooldown--;
+		}
+
 		if (CurrentMonster->isAlive()) {
 			//monster attacks every turn
 			int damage_we_take = CurrentMonster->monster.Attack();
@@ -893,64 +906,122 @@ int main(int argc, char** argv) {
 	system("CLS");
 
 	if (isIt(playerName)) {
-		std::cout << "toma no cu rapa";
-		std::cout << "\naperta enter pra continuar cachorra";
+		std::cout << "Oh, you're actually here. I hope you're doing fine."
+			<< "\nBerserker class unlocked."
+			<< "\npress enter to continue.";
 		std::cin.ignore(100, '\n');
 		char c = getchar();
 
 		system("CLS");
 	}
 
-	std::cout << "\nChoose a class: \n"
-		<< "1: Warrior\n"
-		<< "2: Rogue\n"
-		<< "3: Wizard\n"
-		<< "4: Cleric\n"
-		<< "5: ????????\n";
-	int choice = 0;
-	
-	while (choice < 1 || choice > 4) {
-		std::cin >> choice;
+	if (isIt(playerName)) {
+		std::cout << "\nChoose a class: \n"
+			<< "1: Warrior\n"
+			<< "2: Rogue\n"
+			<< "3: Wizard\n"
+			<< "4: Cleric\n"
+			<< "5: Berserker\n";
+
+		int choice = 0;
+
+		while (choice < 1 || choice > 5) {
+			std::cin >> choice;
+		}
+		Item* starterWeapon;
+		switch (choice) {
+		case 1:
+			MainCharacter = new Player(new Warrior());
+			MainCharacter->name = playerName;
+
+			starterWeapon = ItemManager::CreateWeapon("Starter Sword", CoreStats(0, 0, 0, 0, 0), WEAPONSLOT::MELEE, 3, 4);
+			ItemManager::MoveToBackpack(starterWeapon, &MainCharacter->p1);
+			break;
+		case 2:
+			MainCharacter = new Player(new Rogue());
+			MainCharacter->name = playerName;
+
+			starterWeapon = ItemManager::CreateWeapon("Starter Dagger", CoreStats(0, 0, 0, 0, 0), WEAPONSLOT::MELEE, 2, 4);
+			ItemManager::MoveToBackpack(starterWeapon, &MainCharacter->p1);
+			break;
+		case 3:
+			MainCharacter = new Player(new Wizard());
+			MainCharacter->name = playerName;
+
+			starterWeapon = ItemManager::CreateWeapon("Starter Staff", CoreStats(0, 2, 0, 0, 0), WEAPONSLOT::RANGED, 3, 3);
+			ItemManager::MoveToBackpack(starterWeapon, &MainCharacter->p1);
+			break;
+		case 4:
+			MainCharacter = new Player(new Cleric());
+			MainCharacter->name = playerName;
+
+			starterWeapon = ItemManager::CreateWeapon("Starter Mace", CoreStats(0, 0, 0, 0, 0), WEAPONSLOT::MELEE, 4, 5);
+			ItemManager::MoveToBackpack(starterWeapon, &MainCharacter->p1);
+			break;
+		case 5:
+			MainCharacter = new Player(new Berserker());
+			MainCharacter->name = playerName;
+
+			starterWeapon = ItemManager::CreateWeapon("Starter Claymore", CoreStats(2, 0, 1, 0, 0), WEAPONSLOT::MELEE, 4, 5, true);
+			ItemManager::MoveToBackpack(starterWeapon, &MainCharacter->p1);
+			break;
+		default:
+			return -1; //failed to make playerCharacter
+		}
 	}
-	Item* starterWeapon;
-	switch (choice) {
-	case 1:
-		MainCharacter = new Player(new Warrior());
-		MainCharacter->name = playerName;
+	else {
+		std::cout << "\nChoose a class: \n"
+			<< "1: Warrior\n"
+			<< "2: Rogue\n"
+			<< "3: Wizard\n"
+			<< "4: Cleric\n"
+			<< "5: ????????\n";
 
-		starterWeapon = ItemManager::CreateWeapon("Starter Sword", CoreStats(0, 0, 0, 0, 0), WEAPONSLOT::MELEE, 3, 4);
-		ItemManager::MoveToBackpack(starterWeapon, &MainCharacter->p1);
-		break;
-	case 2:
-		MainCharacter = new Player(new Rogue());
-		MainCharacter->name = playerName;
-		
-		starterWeapon = ItemManager::CreateWeapon("Starter Dagger", CoreStats(0, 0, 0, 0, 0), WEAPONSLOT::MELEE, 2, 4);
-		ItemManager::MoveToBackpack(starterWeapon, &MainCharacter->p1);
-		break;
-	case 3:
-		MainCharacter = new Player(new Wizard());
-		MainCharacter->name = playerName;
+		int choice = 0;
 
-		starterWeapon = ItemManager::CreateWeapon("Starter Staff", CoreStats(0, 2, 0, 0, 0), WEAPONSLOT::RANGED, 3, 3);
-		ItemManager::MoveToBackpack(starterWeapon, &MainCharacter->p1);
-		break;
-	case 4:
-		MainCharacter = new Player(new Cleric());
-		MainCharacter->name = playerName;
-		
-		starterWeapon = ItemManager::CreateWeapon("Starter Mace", CoreStats(0, 0, 0, 0, 0), WEAPONSLOT::MELEE, 4, 5);
-		ItemManager::MoveToBackpack(starterWeapon, &MainCharacter->p1);
-		break;
-	case 5:
-		MainCharacter = new Player(new Berserker());
-		MainCharacter->name = playerName;
+		while (choice < 1 || choice > 4) {
+			std::cin >> choice;
+		}
+		Item* starterWeapon;
+		switch (choice) {
+		case 1:
+			MainCharacter = new Player(new Warrior());
+			MainCharacter->name = playerName;
 
-		starterWeapon = ItemManager::CreateWeapon("Starter Claymore", CoreStats(2, 0, 1, 0, 0), WEAPONSLOT::MELEE, 4, 5, true);
-		ItemManager::MoveToBackpack(starterWeapon, &MainCharacter->p1);
-		break;
-	default:
-		return -1; //failed to make playerCharacter
+			starterWeapon = ItemManager::CreateWeapon("Starter Sword", CoreStats(0, 0, 0, 0, 0), WEAPONSLOT::MELEE, 3, 4);
+			ItemManager::MoveToBackpack(starterWeapon, &MainCharacter->p1);
+			break;
+		case 2:
+			MainCharacter = new Player(new Rogue());
+			MainCharacter->name = playerName;
+
+			starterWeapon = ItemManager::CreateWeapon("Starter Dagger", CoreStats(0, 0, 0, 0, 0), WEAPONSLOT::MELEE, 2, 4);
+			ItemManager::MoveToBackpack(starterWeapon, &MainCharacter->p1);
+			break;
+		case 3:
+			MainCharacter = new Player(new Wizard());
+			MainCharacter->name = playerName;
+
+			starterWeapon = ItemManager::CreateWeapon("Starter Staff", CoreStats(0, 2, 0, 0, 0), WEAPONSLOT::RANGED, 3, 3);
+			ItemManager::MoveToBackpack(starterWeapon, &MainCharacter->p1);
+			break;
+		case 4:
+			MainCharacter = new Player(new Cleric());
+			MainCharacter->name = playerName;
+
+			starterWeapon = ItemManager::CreateWeapon("Starter Mace", CoreStats(0, 0, 0, 0, 0), WEAPONSLOT::MELEE, 4, 5);
+			ItemManager::MoveToBackpack(starterWeapon, &MainCharacter->p1);
+			break;
+		case 5:
+			MainCharacter = new Player(new Berserker());
+			MainCharacter->name = playerName;
+
+			starterWeapon = ItemManager::CreateWeapon("Starter Claymore", CoreStats(2, 0, 1, 0, 0), WEAPONSLOT::MELEE, 4, 5, true);
+			ItemManager::MoveToBackpack(starterWeapon, &MainCharacter->p1);
+			break;
+		default:
+			return -1; //failed to make playerCharacter
+		}
 	}
 
 	create_monster(CurrentMonster, MainCharacter);

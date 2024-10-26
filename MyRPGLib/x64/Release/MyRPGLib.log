@@ -1,0 +1,19 @@
+﻿  ability.cpp
+  armor.cpp
+  berserker.cpp
+  buff.cpp
+  cleric.cpp
+  corestats.cpp
+  item.cpp
+  item_manager.cpp
+  monster.cpp
+  random.cpp
+  playerCharacter.cpp
+  pointwell.cpp
+  potion.cpp
+  rogue.cpp
+  statblock.cpp
+  warrior.cpp
+  weapon.cpp
+  wizard.cpp
+  MyRPGLib.vcxproj -> C:\Users\Luccas\source\repos\MyRPGLib\x64\Release\MyRPGLib.lib

@@ -14,4 +14,7 @@ void Warrior::level_char_up() noexcept {
         else if (GetLevel() == 3) {
             Abilities.emplace_back(new Ability("Healing Surge", 4u, nullptr, 0u, 4u, ABILITYTARGET::SELF, ABILITYSCALER::NONE, ABILITYCOSTTYPE::NONE));
         }
+        else if (GetLevel() == 5) {
+            Abilities.emplace_back(new Ability("Skull Crusher", 7u, nullptr, 0u, 4u, ABILITYTARGET::ENEMY, ABILITYSCALER::STR, ABILITYCOSTTYPE::NONE));
+        }
 }

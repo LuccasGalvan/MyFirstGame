@@ -16,7 +16,7 @@ bool isIt(std::string name) {
 		name[i] = toupper(name[i]);
 	}
 
-	if (name == "MARGINAL") {
+	if (name == "PASSARRINHO") {
 		return true;
 	}
 
